@@ -1,0 +1,76 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+ 
+namespace flattenDictionary
+{
+    class flattenDictionary
+    {
+        public static void Main()
+        {
+            var keysDictionary = new Dictionary<string, Dictionary<string, string>>();
+            var flattenedDictionary = new Dictionary<string, List<string>>();
+ 
+            var input = Console.ReadLine().Split();
+ 
+            while ( input[0] != "end" )
+            {
+                if ( input.Length == 3 )
+                {
+                    var currentKey = input[0];
+                    var currentInnerKey = input[1];
+                    var currentInnerValue = input[2];
+ 
+                    if ( !keysDictionary.ContainsKey(currentKey) )
+                    {
+                        keysDictionary[currentKey] = new Dictionary<string, string>();
+                    }
+ 
+                    keysDictionary[currentKey][currentInnerKey] = currentInnerValue;
+                }
+ 
+                else
+                {
+                    var keyToFlatten = input[1];
+ 
+                    foreach ( var kvp in keysDictionary[keyToFlatten] )
+                    {
+                        var keyToConcat = kvp.Key;
+                        var valueToConcat = kvp.Value;
+                        var valueToAdd = keyToConcat + valueToConcat;
+ 
+                        if ( !flattenedDictionary.ContainsKey(keyToFlatten) )
+                        {
+                            flattenedDictionary[keyToFlatten] = new List<string>();
+                        }
+ 
+                        flattenedDictionary[keyToFlatten].Add(valueToAdd);
+                    }
+ 
+                    keysDictionary[keyToFlatten] = new Dictionary<string, string>();
+                }
+ 
+                input = Console.ReadLine().Split();
+            }
+ 
+            foreach ( var kvp in keysDictionary.OrderByDescending(x => x.Key.Length) )
+            {
+                var count = 1;
+                Console.WriteLine(kvp.Key);
+                foreach ( var innerKVP in kvp.Value.OrderBy(x => x.Key.Length) )
+                {
+                    Console.WriteLine($"{count}. {innerKVP.Key} - {innerKVP.Value}");
+                    count++;
+                }
+                if ( flattenedDictionary.ContainsKey(kvp.Key) )
+                {
+                    foreach ( var value in flattenedDictionary[kvp.Key] )
+                    {
+                        Console.WriteLine($"{count}. {value}");
+                        count++;
+                    }
+                }
+            }
+        }
+    }
+}
