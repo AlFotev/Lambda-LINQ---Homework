@@ -1,0 +1,74 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace LambdaAndLINQProblem2
+{
+    class Problem2
+    {
+        static void Main()
+        {
+            var input = Console.ReadLine()
+                .Split(new[] { ' ', '-', '>' }, StringSplitOptions.RemoveEmptyEntries)
+                .ToList();
+            var key = input.First();
+            var value = input.Last();
+            var storageForAll = new Dictionary<string, string>();
+            var storageForOrigin = new Dictionary<string, string>();
+            var storageForChanged = new Dictionary<string, string>();
+
+
+
+            while (key != "end")
+            {
+                value = input.Last();
+                if (!storageForAll.ContainsKey(key))
+                {
+                    storageForAll[key] = value;
+                }
+                else
+                {
+                    storageForAll[key] = value;
+                }
+                input = Console.ReadLine()
+                .Split(new[] { ' ', '-', '>' }, StringSplitOptions.RemoveEmptyEntries)
+                .ToList();
+                key = input.First();              
+            }
+
+            var defaultValue = Console.ReadLine();
+
+           storageForChanged = storageForAll.Where(dict => dict.Value == "null")
+                .Select(dict => new KeyValuePair<string , string>(dict.Key , defaultValue))
+                .ToDictionary(
+               dict => dict.Key,
+               dict => dict.Value
+               );
+
+            storageForOrigin = storageForAll.Where(dict => dict.Value != "null")
+                .ToDictionary(
+               dict => dict.Key,
+               dict => dict.Value
+               );
+
+            storageForOrigin = storageForOrigin
+                .OrderByDescending(kvp => kvp.Value.Length)
+                .ToDictionary(
+                kvp => kvp.Key,
+                kvp => kvp.Value
+                );
+
+            foreach (var kvp in storageForOrigin)
+            {
+                Console.WriteLine(kvp.Key + " <-> " + kvp.Value);
+            }
+
+            foreach (var kvp in storageForChanged)
+            {
+                Console.WriteLine(kvp.Key + " <-> " + kvp.Value);
+            }
+        }
+    }
+}
