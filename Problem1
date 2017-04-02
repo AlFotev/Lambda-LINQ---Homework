@@ -1,0 +1,46 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace LambdaLINQ
+{
+    class Problem1
+    {
+        static void Main()
+        {
+            var userAndDate = Console.ReadLine().Split(new[] {' ','-','>' },StringSplitOptions.RemoveEmptyEntries).ToList();
+            var user = userAndDate.First();
+            var allUsersAndDates = new Dictionary<string , DateTime>();
+
+            while (user != "end")
+            {
+                var dateString = userAndDate.Last();
+                var date = DateTime.ParseExact(dateString, "dd/MM/yyyy", null); ;
+
+                if (!allUsersAndDates.ContainsKey(user))
+                {
+                    allUsersAndDates[user] = date;
+                }
+                userAndDate = Console.ReadLine().Split(new[] { ' ', '-', '>' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+                user = userAndDate.First();
+               
+            }  
+
+           allUsersAndDates = allUsersAndDates.Reverse().
+                OrderBy(kvp => kvp.Value).
+                Take(5).
+                OrderByDescending(st => st.Value)
+                .ToDictionary(
+               kvp => kvp.Key ,
+               kvp => kvp.Value);
+
+            foreach (var keys in allUsersAndDates.Keys)
+            {
+                Console.WriteLine(keys);
+            }
+
+        }
+    }
+}
