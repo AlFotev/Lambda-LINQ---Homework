@@ -1,0 +1,105 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace LambdaLinqPr4
+{
+    class Problem4
+    {
+        static void Main()
+        {
+            var input = Console.ReadLine().Split(new[] { ' ','-','>'}, StringSplitOptions.RemoveEmptyEntries).ToList();
+            var trees = new List<string>();
+            var heights = new List<int>();
+            var neededTree = new Dictionary<string, List<int>>();
+            var notNeededTrees = new Dictionary<string, List<int>>();
+
+            while (input[0] != "chop")
+            {
+                trees.Add(input[0]);
+                heights.Add(int.Parse(input[1]));
+                input = Console.ReadLine().Split(new[] { ' ', '-', '>' }, StringSplitOptions.RemoveEmptyEntries).ToList();
+            }
+
+            var type = Console.ReadLine();
+            var length = int.Parse(Console.ReadLine());
+
+            for (var i = 0; i < trees.Count; i++)
+            {
+                if (trees[i] == type)
+                {
+                    if (!neededTree.ContainsKey(type))
+                    {
+                        neededTree[type] = new List<int>();                    
+                    }
+                    neededTree[type].Add(heights[i]);
+                }
+                else
+                {
+                    if (!notNeededTrees.ContainsKey(trees[i]))
+                    {
+                        notNeededTrees[trees[i]] = new List<int>();
+                    }
+                    notNeededTrees[trees[i]].Add(heights[i]);
+                }
+            }
+
+
+            var logAveragePrice = Math.Round(pricePerMeter(heights, trees), 2);
+            var unusedTreesPrice = Math.Round( priceUnusedLog(length , type , logAveragePrice , neededTree , notNeededTrees), 2);
+            var usedLogPrice = Math.Round(pricePerUsedLog( neededTree, logAveragePrice , length ), 2);
+            var totalCost = unusedTreesPrice + usedLogPrice;
+
+            Console.WriteLine($"Price per meter: ${logAveragePrice:f2}");
+            Console.WriteLine($"Used logs price: ${usedLogPrice:f2}");
+            Console.WriteLine($"Unused logs price: ${unusedTreesPrice:f2}");
+            Console.WriteLine($"CottageScraper subtotal: ${totalCost:f2} ");
+
+        }
+
+
+        public static decimal pricePerMeter( List<int> heights , List<string> trees) {
+            var sumOfLogs = heights.Sum();
+            var countOfTrees = trees.Count();
+            decimal price = (decimal)sumOfLogs / (decimal)countOfTrees;
+            return price;
+        }
+
+
+        public static decimal pricePerUsedLog(Dictionary<string, List<int>> neededTree ,decimal pricePerMeter , int length)
+        {
+            var listOfNeededHeight = neededTree.SelectMany(kvp => kvp.Value).Where(num => num >= length);
+            var sumOfNeededHeightTrees = listOfNeededHeight.Sum();
+            var price = sumOfNeededHeightTrees * pricePerMeter;
+            return price;
+            
+        }
+
+
+        public static decimal priceUnusedLog(
+            int length ,
+            string type ,
+            decimal pricePerMeter ,
+            Dictionary<string , List<int>> neededTrees ,
+            Dictionary<string, List<int>> notNeededTrees)
+        {
+            var allHeights = notNeededTrees.SelectMany(kvp => kvp.Value);
+            var sum = allHeights.Sum();
+            var allValsOfNeededTree = neededTrees.SelectMany(kvp => kvp.Value);
+            var listOfSmallHeights = new List<int>();
+            foreach (var height in allValsOfNeededTree)
+            {
+                if (height < length)
+                {
+                    listOfSmallHeights.Add(height);
+                }
+            }
+            var sumOfSmallHeightsOfNeededTree = listOfSmallHeights.Sum();
+            var totalUnNeededSum = sum + sumOfSmallHeightsOfNeededTree;
+            var price = totalUnNeededSum * (decimal)pricePerMeter * (decimal)0.25;
+            return price;
+        }
+    }
+}
